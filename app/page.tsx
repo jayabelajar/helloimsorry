@@ -1,65 +1,177 @@
-import Image from "next/image";
+"use client"
+
+import { useEffect, useState } from "react"
+import Link from "next/link"
+import { SiteHeader } from "@/components/SiteHeader"
+import { SiteFooter } from "@/components/SiteFooter"
+import { caveat } from "./fonts"
+
+const dummyMessages = [
+  {
+    id: "36632b7c-e18b-46bc-a2bb-e79a791f1b99",
+    recipient: "emir ziqry",
+    message: "for everything. i miss you and i love you.",
+    sender: "amanda",
+    created_at: "2025-12-07T14:52:00Z",
+  },
+  {
+    id: "7f1d934a-3c73-41f3-8e62-72f4ddc98c42",
+    recipient: "dwi",
+    message: "thank you for staying even when i was difficult to love.",
+    sender: "raka",
+    created_at: "2025-12-07T09:12:00Z",
+  },
+  {
+    id: "c9d2f183-4e4d-4d98-8ebd-31f7d9c9ef02",
+    recipient: "ibu",
+    message: "maaf belum bisa pulang sering-sering. i hope you feel my prayers.",
+    sender: "nanda",
+    created_at: "2025-12-06T22:05:00Z",
+  },
+  {
+    id: "a13902ab-8949-4d15-a698-0357e6a1c1a1",
+    recipient: "lan",
+    message: "i should have listened more, i should have hugged you longer.",
+    sender: "zee",
+    created_at: "2025-12-06T18:41:00Z",
+  },
+  {
+    id: "f4a213b5-5f4b-48cb-9e0c-18f3270700ab",
+    recipient: "ari",
+    message: "sorry for letting fear win. i choose us now, if you still do.",
+    sender: "maya",
+    created_at: "2025-12-05T12:10:00Z",
+  },
+] as const
+
+const formatDate = (date: string) => {
+  const formatted = new Date(date).toLocaleString("en-US", {
+    weekday: "short",
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  })
+  return formatted.replace("AM", "am").replace("PM", "pm")
+}
 
 export default function Home() {
+  const [typedText, setTypedText] = useState("")
+  const [current, setCurrent] = useState(0)
+
+  useEffect(() => {
+    const message = dummyMessages[current]
+    let charIndex = 0
+    let typingTimer: ReturnType<typeof setTimeout> | null = null
+    let holdTimer: ReturnType<typeof setTimeout> | null = null
+    const resetTimer = setTimeout(() => setTypedText(""), 0)
+
+    const typeNext = () => {
+      if (charIndex <= message.message.length) {
+        setTypedText(message.message.slice(0, charIndex))
+        charIndex += 1
+        typingTimer = setTimeout(typeNext, 45)
+      } else {
+        holdTimer = setTimeout(() => {
+          setCurrent((prev) => (prev + 1) % dummyMessages.length)
+        }, 2000)
+      }
+    }
+
+    typingTimer = setTimeout(typeNext, 100)
+
+    return () => {
+      clearTimeout(resetTimer)
+      if (typingTimer) clearTimeout(typingTimer)
+      if (holdTimer) clearTimeout(holdTimer)
+    }
+  }, [current])
+
+  const highlight = dummyMessages[current]
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="flex min-h-screen flex-col bg-white text-[#1a1a1a] font-sans">
+      <SiteHeader />
+
+      {/* Main Content */}
+      <main className="mx-auto flex w-full max-w-5xl flex-grow flex-col items-center justify-center px-6 py-12 text-center md:py-16">
+        
+        {/* Hero Section */}
+        <h1 className={`${caveat.className} mb-3 text-4xl leading-tight text-gray-900 md:text-6xl`}>
+          hello, i&apos;m sorry
+        </h1>
+
+        <p className="mb-8 max-w-[480px] text-base leading-relaxed text-gray-500 md:text-lg">
+          for everything that you can&apos;t say, let your apology, your gratitude, your love speak through your message
+        </p>
+
+        {/* Buttons */}
+        <div className="mb-10 flex w-full flex-col gap-3 sm:flex-row sm:justify-center sm:gap-4">
+          {/* TOMBOL SUBMIT: Pakai !bg-black dan !text-white biar gak bisa ditawar */}
+          <Link
+            href="/submit"
+            className="flex w-full items-center justify-center gap-2 rounded-md !bg-black px-6 py-2.5 text-sm font-semibold !text-white transition hover:opacity-80 sm:w-auto min-w-[140px]"
+            style={{ backgroundColor: 'black', color: 'white' }} // Inline style cadangan kalau Tailwind macet
+          >
+            Submit
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="h-4 w-4 !text-white"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+            </svg>
+          </Link>
+
+          <Link
+            href="/browse"
+            className="flex w-full items-center justify-center gap-2 rounded-md border border-gray-200 bg-white px-6 py-2.5 text-sm font-semibold text-gray-900 transition hover:bg-gray-50 sm:w-auto min-w-[140px]"
+          >
+            Browse
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="h-4 w-4"
             >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+            </svg>
+          </Link>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* Featured Card with typing effect */}
+        <div className="w-full max-w-[520px] rounded-xl border border-gray-100/80 bg-white p-6 text-left shadow-[0_2px_12px_-2px_rgba(0,0,0,0.05)] md:p-8">
+          <div className="leading-snug">
+            <span className="text-lg font-normal tracking-wide text-gray-300 md:text-xl">hello</span>{" "}
+            <span className={`${caveat.className} mx-1 break-words text-2xl font-bold text-gray-800 md:text-3xl`}>
+              {highlight.recipient},
+            </span>
+            <div className="mt-1">
+              <span className="text-lg font-normal tracking-wide text-gray-300 md:text-xl">i&apos;m sorry,</span>{" "}
+              <span className={`${caveat.className} text-2xl text-gray-800 md:text-3xl leading-tight`}>
+                {typedText}
+                <span className="ml-1 inline-block h-5 w-1 animate-pulse bg-gray-400 align-middle" />
+              </span>
+            </div>
+          </div>
+
+          <div className="mt-6 flex items-end justify-between border-t border-transparent pt-3 md:mt-6">
+            <span className={`${caveat.className} max-w-[55%] truncate text-xl text-gray-400 md:text-2xl`}>
+              {highlight.sender}
+            </span>
+            <span className="text-[10px] font-medium text-gray-400 md:text-xs">{formatDate(highlight.created_at)}</span>
+          </div>
         </div>
       </main>
+
+      <SiteFooter />
     </div>
-  );
+  )
 }
