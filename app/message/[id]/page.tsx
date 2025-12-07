@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import Link from "next/link"
 import { SiteHeader } from "@/components/SiteHeader"
 import { SiteFooter } from "@/components/SiteFooter"
@@ -75,16 +76,58 @@ const decodeName = (name: string | null) => {
 }
 
 // --- HALAMAN UTAMA ---
+export async function generateMetadata({
+  params,
+}: {
+  params: { id: string }
+}): Promise<Metadata> {
+  const rawId = params?.id ?? ""
+  const decodedId = safeDecode(rawId)
+  const message = await fetchMessage(decodedId)
+  if (!message) {
+    return {
+      title: "Message not found — HelloImSorry",
+      description: "Pesan yang kamu cari sudah dihapus atau disembunyikan.",
+      alternates: { canonical: `${SITE_BASE}/message/${rawId}` },
+    }
+  }
+
+  const decoded = decodeName(message.name)
+  const summary = message.message.length > 150 ? `${message.message.slice(0, 147)}...` : message.message
+  const canonical = `${SITE_BASE}/message/${message.id}`
+
+  return {
+    title: `Untuk ${decoded.recipient} — Pesan Permintaan Maaf di HelloImSorry`,
+    description: summary,
+    alternates: { canonical },
+    openGraph: {
+      title: `Pesan untuk ${decoded.recipient}`,
+      description: summary,
+      url: canonical,
+    },
+    twitter: {
+      card: "summary",
+      title: `Pesan untuk ${decoded.recipient}`,
+      description: summary,
+    },
+  }
+}
+
+const safeDecode = (value: string) => {
+  try {
+    return decodeURIComponent(value)
+  } catch {
+    return value
+  }
+}
+
 export default async function MessageDetail({
   params,
 }: {
-  params: Promise<{ id: string }>
+  params: { id: string }
 }) {
-  const resolved = await params
-  const rawId = typeof resolved?.id === "string" ? resolved.id : ""
-  let decodedId = rawId
-  try { decodedId = decodeURIComponent(rawId) } catch {}
-
+  const rawId = params?.id ?? ""
+  const decodedId = safeDecode(rawId)
   const message = await fetchMessage(decodedId)
   const decoded = decodeName(message?.name ?? null)
   const shareUrl =

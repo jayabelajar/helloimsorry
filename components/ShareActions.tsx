@@ -10,10 +10,15 @@ type ShareProps = {
 export function ShareActions({ url, text }: ShareProps) {
   const [copied, setCopied] = useState(false)
 
+  const SITE_BASE = typeof window === "undefined"
+    ? process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? ""
+    : (process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || window.location.origin)
+
   const getFullUrl = () => {
-    if (typeof window === "undefined") return url
     if (url.startsWith("http")) return url
-    return window.location.origin + url
+    const base = SITE_BASE || (typeof window !== "undefined" ? window.location.origin : "")
+    if (!base) return url
+    return `${base}${url.startsWith("/") ? url : `/${url}`}`
   }
 
   const handleCopy = async () => {
