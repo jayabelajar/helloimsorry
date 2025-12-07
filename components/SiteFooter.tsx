@@ -16,7 +16,7 @@ export function SiteFooter() {
           </Link>
         </div>
         <p className="text-xs font-light tracking-wide text-gray-400 md:text-sm">
-          © 2025 HelloImSorry - part of SendTheSong. All rights reserved.
+          © 2025 HelloImSorry - Powered by Jayadev. All rights reserved.
         </p>
       </div>
     </footer>
